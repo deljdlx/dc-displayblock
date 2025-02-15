@@ -1,0 +1,61 @@
+
+.ariane.labyrinth {
+    border-collapse: collapse;
+}
+    
+
+.ariane.labyrinth .ariane.cell {
+
+    /*border: solid 1px #CCC;*/
+    background-color: #424874;
+    width: 24px;
+    height: 24px;
+    font-size: 7px;
+}
+
+
+.ariane.labyrinth .ariane.cell.path {
+    background-color:#D6E5E3;
+}
+
+
+
+/*
+.ariane.labyrinth .ariane.cell.path.noise0 {
+    background-color:#FFA;
+}
+.ariane.labyrinth .ariane.cell.path.noise1 {
+    background-color:#FFA;
+}
+.ariane.labyrinth .ariane.cell.path.noise2 {
+    background-color:#FFA;
+}
+
+
+.ariane.labyrinth .ariane.cell.path.path-main {
+    background-color:#AFF;
+}
+
+.ariane.labyrinth .ariane.cell.path.path-main2 {
+    background-color:#F0F;
+}
+
+.ariane.labyrinth .ariane.cell.path.closing-path {
+    background-color:#0F0;
+}
+
+
+.ariane.labyrinth .ariane.cell.path.closest {
+    background-color:#F00;
+}
+*/
+
+
+.ariane.labyrinth .ariane.cell.path.to-top {
+    background-color:#F0F;
+}
+
+
+.ariane.labyrinth .ariane.cell.path.to-bottom {
+    background-color:#0FF;
+}

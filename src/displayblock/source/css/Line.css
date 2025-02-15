@@ -1,0 +1,26 @@
+.item.line {
+  /*background-color: #fff;*/
+  transform-origin: 0 0 0;
+  transform-style: preserve-3d;
+  /* border: dashed 2px #f0f; */
+}
+
+
+.item.line .side {
+  outline: solid 1px #0000; /* used to avoid graphic glitch */
+  width: 100%;
+  height:100%;
+  /*
+  border-top-style: solid;
+  border-bottom-style: solid;
+  height:0;
+  */
+}
+
+.item.line .side--0 {
+
+}
+
+.item.line .side--1 {
+
+}

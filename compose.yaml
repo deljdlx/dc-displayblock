@@ -1,0 +1,21 @@
+services:
+  displayblock:
+    image: nginx:alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - "./src:/usr/share/nginx/html"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.displayblock.rule=Host(\"${DOMAIN}\")"
+      - "traefik.http.routers.displayblock.entrypoints=websecure"
+      - "traefik.http.routers.displayblock.tls.certresolver=myresolver"
+    networks:
+      - web
+
+networks:
+  web:
+    name: web
+    external: true

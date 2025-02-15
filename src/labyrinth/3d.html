@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+
+
+        <link rel="stylesheet" href="./old-source/css/style.css" />
+        <link rel="stylesheet" href="./old-source/css/Scene.css" />
+
+        <link rel="stylesheet" href="./old-source/css/Item.css" />
+        <link rel="stylesheet" href="./old-source/css/Cube.css" />
+        <link rel="stylesheet" href="./old-source/css/Cuboid.css" />
+
+        <link rel="stylesheet" href="./old-source/css/Board.css" />
+        <link rel="stylesheet" href="./old-source/css/Matrix.css" />
+
+        <link rel="stylesheet" href="../source/css/labyrinth.css" />
+
+
+        <style>
+
+            body {
+                background-color: #94B88E;
+            }
+
+            .perspective {
+                border: 5px rgba(255,255,255, 0.9) dashed;
+                border-radius : 50%;
+            }
+
+            .board-background {
+                background-image: url(https://lh5.googleusercontent.com/5yV6Q_UelW3AEuQIg8Aa8H_niM8_1qpfNz_MrXMcCGg1SJiGh-EbV-HdykFQo6Z_BwNlu92paiw22ld7y7aZHb6dA9FM3C5Rhowos1QHQYKGQit1zR7XuoCpKZp3a3O7);
+            }
+
+
+            .item-wrapper {
+                transition: none;
+            }
+
+            .item.cuboid.matrix-border .cuboid-side {
+                border: solid 1px #000;
+                background-color:#CCC;
+                background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQeAj7BfVyoM_NVqOlEoBJ6d9PUCf6o4AXIwMBV1yOZFxBi_8vU&usqp=CAU);
+            }
+            .item.cuboid.matrix-border .cuboid-side.cuboid-side-top {
+                /*background-image: url(https://opengameart.org/sites/default/files/grass_14.png);*/
+            }
+
+
+            .item.cuboid.matrix-border .cuboid-side.cuboid-side-bottom {
+                box-shadow: 0 0 20px 10px rgba(0,0,0, 1);
+            }
+            
+
+
+            .cuboid .cuboid-side {
+                border: solid 2px #CEC;
+                background-color:#ADA;
+                background-image: url(https://www.azutura.com/media/catalog/product/cache/49/image/650x/040ec09b1e35df139433887a97daa66f/W/S/WS-47229_WP.jpg);
+            }
+
+            .cuboid .cuboid-side.cuboid-side-bottom {
+                box-shadow: 0 0 20px 10px rgba(0,0,0, 1);
+            }
+
+            .cuboid .cuboid-side.cuboid-side-top {
+                background-image: url(https://4.bp.blogspot.com/-ggkSFkq3ky4/UXO1HwBEtZI/AAAAAAAAM9M/JuxFjeDrJwk/s1600/Sprite_FX_Grass_0001.png);
+                
+            }
+
+
+
+            .item.cuboid.axe .cuboid-side {
+                box-shadow: none !important;
+                background-color:rgba(255,255,255,0.8);
+                background-image: none;
+                border: none;
+            }
+
+            #howto {
+                font-family: Arial;
+                position: fixed;
+                font-size: 20px;
+                padding: 10px;
+            }
+
+
+        </style>
+    </head>
+
+    <body>
+
+        <div id="howto">
+            <p>Use well to zoom in and out</p>
+            <p>Drag with left click to move</p>
+            <p>Drag with right click to rotate</p>
+        </div>
+
+
+
+
+        <script src="./source/javascript/Labyrinth.js"></script>
+        <script src="./source/javascript/Path.js"></script>
+        <script src="./source/javascript/Cell.js"></script>
+        <script src="./source/javascript/TableRenderer.js"></script>
+
+
+
+        <script src="./old-source/js/Viewport.js"></script>
+        <script src="./old-source/js/Board.js"></script>
+        <script src="./old-source/js/Board/Free.js"></script>
+        <script src="./old-source/js/Item.js"></script>
+        <script src="./old-source/js/Cuboid.js"></script>
+        <script src="./old-source/js/Cube.js"></script>
+
+
+        <script src="./old-source/js/Board/Square.js"></script>
+        <script src="./old-source/js/Board/Matrix.js"></script>
+        <script src="./old-source/js/Game/Player.js"></script>
+        <script src="./old-source/js/Game/Game.js"></script>
+
+
+
+        <script>
+
+
+            const size = 24;
+            
+            const viewport = new Viewport(document.body);
+            const matrix = new Matrix(size, size);
+            //matrix.width = 16;
+            //matrix.height = 16;
+            viewport.setBoard(matrix);
+
+            const test = new Labyrinth(size, size);
+            test.generate();
+
+
+            let data = test.getMatrix();
+
+            for(let x = 0 ; x < data.length ; x++) {
+                for(let y = 0 ; y < data[x].length ; y++) {
+                    let cell = data[x][y];
+                    if(!cell.isPath()) {
+                        matrix.enable(x,y);
+                    }
+                }
+            }
+            viewport.generate();
+            viewport.translate(-3000);
+            viewport.setRotation(0,0,0);
+            viewport.setPosition();
+
+
+
+            const renderer = new TableRenderer(test);
+            renderer.render(document.body);
+        </script>
+
+    </body>
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,19 @@
+
+.layout {
+    box-sizing: border-box;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+
+    /*
+    transform-style: preserve-3d;
+    */
+}
+
+
+.perspective  {
+    position: absolute;
+    transform-style: preserve-3d;
+}
+
+

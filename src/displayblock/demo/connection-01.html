@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krakottes, the Krakens' Krispy musics</title>
+
+
+    <link rel="stylesheet" href="..//source/css/style.css" />
+    <link rel="stylesheet" href="..//source/css/Scene.css" />
+
+    <link rel="stylesheet" href="..//source/css/Item.css" />
+    <link rel="stylesheet" href="..//source/css/Cube.css" />
+    <link rel="stylesheet" href="..//source/css/Cuboid.css" />
+    <link rel="stylesheet" href="..//source/css/Line.css" />
+
+    <link rel="stylesheet" href="..//source/css/Board.css" />
+    <link rel="stylesheet" href="..//source/css/Matrix.css" />
+
+    <style>
+        body {
+            background-color: #000;
+            /*background-image: url(https://i.pinimg.com/originals/d3/ac/55/d3ac555effe094dd590384293267349f.png);*/
+            background-size: cover;
+        }
+
+        .layout__perspective {
+            background-color: #fff1;
+            border: solid 1px #fffc;
+            /*backdrop-filter: blur(5px); destroy 3d effect*/
+        }
+
+        .cuboid .cuboid-side {
+            background-color: #fff1;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+            transition: all 0.5s;
+            cursor: pointer;
+        }
+
+        .cuboid:hover .cuboid-side {
+            background-color: #fffc;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
+        }
+        .line .side{
+            box-shadow: 0 0 5px rgba(255, 0, 255, 1);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="main" style="width: 600px;height:400px;"></div>
+
+    <script src="..//source/js/Util/Transformation.js"></script>
+    <script src="..//source/js/Util/PositionManager.js"></script>
+    <script src="..//source/js/Util/Animation.js"></script>
+
+
+    <script src="..//source/js/Traits/Renderable.js"></script>
+    <script src="..//source/js/Traits/Animable.js"></script>
+
+
+
+    <script src="..//source/js/Viewport.js"></script>
+    <script src="..//source/js/ViewportInteraction.js"></script>
+
+
+    <script src="..//source/js/Item.js"></script>
+
+    <script src="..//source/js/Scene.js"></script>
+    <script src="..//source/js/Board/Free.js"></script>
+
+
+
+
+
+    <script src="..//source/js/Line.js"></script>
+    <script src="..//source/js/Surface.js"></script>
+    <script src="..//source/js/Cuboid.js"></script>
+    <script src="..//source/js/Cube.js"></script>
+
+
+    <script src="..//source/js/Board/Square.js"></script>
+
+
+
+    <script>
+
+        function testConnections2(viewport) {
+            let cube1 = new Cube(100, 100, 100);
+            viewport.addItem(cube1, 1000, 100, 200);
+            cube1.setFrontContent('<div style="color: #fff">1</div>');
+
+
+            let cube2 = new Cube(100, 100, 100);
+            cube2.setFrontContent('<div style="color: #fff">2</div>');
+            viewport.addItem(cube2, 800, 400, 0);
+
+            let cube3 = new Cube(100, 100, 100);
+            cube3.setFrontContent('<div style="color: #fff">3</div>');
+            viewport.addItem(cube3, 600, 100, 200);
+
+
+            let cube4 = new Cube(100, 100, 100);
+            cube4.setFrontContent('<div style="color: #fff">4</div>');
+            viewport.addItem(cube4, 600, 600, 200);
+
+            let cube5 = new Cube(100, 100, 100);
+            cube5.setFrontContent('<div style="color: #fff">5</div>');
+            viewport.addItem(cube5, 1000, 600, 200);
+
+            let cube6 = new Cube(100, 100, 100);
+            cube6.setFrontContent('<div style="color: #fff">6</div>');
+            viewport.addItem(cube6, 1200, 800, -200);
+
+            let cube7 = new Cube(100, 100, 100);
+            cube7.setFrontContent('<div style="color: #fff">7</div>');
+            viewport.addItem(cube7, 200, 800, -200);
+
+
+            let cube8 = new Cube(100, 100, 100);
+            cube8.setFrontContent('<div style="color: #fff">8</div>');
+            viewport.addItem(cube8, 200, 100, -200);
+
+
+            let cube9 = new Cube(100, 100, 100);
+            cube9.setFrontContent('<div style="color: #fff">9</div>');
+            viewport.addItem(cube9, 1200, 100, -200);
+
+
+            let cube10 = new Cube(100, 100, 100);
+            cube10.setFrontContent('<div style="color: #fff">10</div>');
+            viewport.addItem(cube10, 800, 800, -200);
+
+
+            let cube11 = new Cube(100, 100, 100);
+            cube11.setFrontContent('<div style="color: #fff">11</div>');
+            viewport.addItem(cube11, 1200, 800, 500);
+
+
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube1, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube1);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube3, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube3);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube4, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube4);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube5, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube5);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube6, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube7, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube7);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube8, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube8);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#0f0');
+            line.connectItems(cube9, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
+            line.connectItems(cube2, cube9);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#baf');
+            line.connectItems(cube6, cube7);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+            line = new Line(10, '#fab');
+            line.connectItems(cube7, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
+            line = new Line(10, '#baf');
+            line.connectItems(cube7, cube8);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+            line = new Line(10, '#fab');
+            line.connectItems(cube8, cube7);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#baf');
+            line.connectItems(cube8, cube3);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+            line = new Line(10, '#fab');
+            line.connectItems(cube3, cube8);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#baf');
+            line.connectItems(cube1, cube9);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+            line = new Line(10, '#fab');
+            line.connectItems(cube9, cube1);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
+            line = new Line(10, '#baf');
+            line.connectItems(cube2, cube10);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+            line = new Line(10, '#fab');
+            line.connectItems(cube10, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(10, '#baf');
+            line.connectItems(cube6, cube11);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+            line = new Line(10, '#fab');
+            line.connectItems(cube11, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+        }
+
+
+
+
+        const container = document.getElementById('main');
+        let viewport = new Viewport(container);
+        viewport.addAxes();
+        viewport.draw();
+
+        // testConnections(viewport);
+        testConnections2(viewport);
+
+    </script>
+
+
+
+</body>
+<html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <script src="source/javascript/Labyrinth.js"></script>
+        <script src="source/javascript/Path.js"></script>
+        <script src="source/javascript/Cell.js"></script>
+        <script src="source/javascript/TableRenderer.js"></script>
+        <link rel="stylesheet" href="source/css/labyrinth.css">
+
+        <style>
+            #more {
+                font-family: Arial;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div>
+            <h1>Labyrinth generator</h1>
+        </div>
+
+        <div id="labyrinth"></div>
+
+        <div id="more">
+            <a href="/3d.html">View with 3d rendering</a>
+        </div>
+
+        <script>
+            const test = new Labyrinth(33,33);
+            test.generate();
+            const renderer = new TableRenderer(test);
+            renderer.render(document.getElementById('labyrinth'));
+        </script>
+
+</body>
+</html>

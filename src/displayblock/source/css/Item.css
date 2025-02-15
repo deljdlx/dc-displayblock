@@ -1,0 +1,8 @@
+.item {
+    transform-style: preserve-3d;
+}
+
+.item-wrapper {
+    position: absolute;
+    transform-style: preserve-3d;
+}
