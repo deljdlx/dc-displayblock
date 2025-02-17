@@ -1,4 +1,4 @@
-# Display block
+# 🧊 Display block
 
 <!--<SHORT-PRESENTATION> -->
 A proof of concept for pure DOM 3D rendering.
