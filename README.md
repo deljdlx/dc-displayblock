@@ -20,6 +20,10 @@ CSS and JS are pushed to their limits to create a DOM **3D engine** that's **fas
 
 Demo: [https://displayblock.jlb.ninja/](https://displayblock.jlb.ninja/)
 
-## Another demo
+## Another demos
 
 This is a labyrint generator, you can see it [here](https://displayblock.jlb.ninja/labyrinth/3d.html)
+
+
+Music spectrum, you can see it [here](MusiSpectrogram, you can see it [here](https://displayblock.jlb.ninja/displayblock/demo/spectrum/)
+)
