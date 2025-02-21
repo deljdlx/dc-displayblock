@@ -11,7 +11,7 @@ jobs:
     uses: deljdlx/github-tools/.github/workflows/deploy.yml@main
     with:
       host_name: "displayblock.jlb.ninja"
-      repo_name: "dc-docker-api"
+      repo_name: "dc-displayblock"
       repo_owner: "deljdlx"
       deploy_folder: "/home/jdlxt/stack"
     secrets:

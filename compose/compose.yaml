@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     volumes:
-      - "./src:/usr/share/nginx/html"
+      - "../src:/usr/share/nginx/html"
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
