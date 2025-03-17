@@ -1,6 +1,7 @@
 services:
   displayblock:
     image: nginx:alpine
+    container_name: displayblock
     restart: always
     env_file:
       - .env
