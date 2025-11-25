@@ -5,226 +5,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Krakottes, the Krakens' Krispy musics</title>
-
-
     <link rel="stylesheet" href="..//source/css/style.css" />
     <link rel="stylesheet" href="..//source/css/Scene.css" />
-
     <link rel="stylesheet" href="..//source/css/Item.css" />
     <link rel="stylesheet" href="..//source/css/Cube.css" />
     <link rel="stylesheet" href="..//source/css/Cuboid.css" />
     <link rel="stylesheet" href="..//source/css/Line.css" />
-
     <link rel="stylesheet" href="..//source/css/Board.css" />
     <link rel="stylesheet" href="..//source/css/Matrix.css" />
-
     <style>
         body {
             background-color: #000;
             /*background-image: url(https://i.pinimg.com/originals/d3/ac/55/d3ac555effe094dd590384293267349f.png);*/
             background-size: cover;
         }
-
         .layout__perspective {
             background-color: #fff1;
             border: solid 1px #fffc;
             /*backdrop-filter: blur(5px); destroy 3d effect*/
-        }
-
         .cuboid .cuboid-side {
-            background-color: #fff1;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
             transition: all 0.5s;
             cursor: pointer;
-        }
-
         .cuboid:hover .cuboid-side {
             background-color: #fffc;
             box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
-        }
         .line .side{
             box-shadow: 0 0 5px rgba(255, 0, 255, 1);
-        }
     </style>
-
 </head>
-
 <body>
-
     <div id="main" style="width: 600px;height:400px;"></div>
-
     <div style="position: absolute; top: 0; left:0; z-index:100">
         <button id="triggerRotations">Trigger rotation loops</button>
         <button id="triggerRotate30">Rotate by 30°</button>
         <button id="flatten">Flatten</button>
-
         |
-
         <button id="triggerRotateItem">Rotate Items</button>
         <button id="triggerTranslateItem">Translate Items</button>
         <button id="triggerNormalizeItem">Normalize Items</button>
         <button id="triggerRandomizeItem">Randomize Items</button>
         <button id="triggerGridItem">Grid display</button>
-
     </div>
-
     <script src="..//source/js/Util/Transformation.js"></script>
     <script src="..//source/js/Util/PositionManager.js"></script>
     <script src="..//source/js/Util/Animation.js"></script>
-
-
     <script src="..//source/js/Traits/Renderable.js"></script>
     <script src="..//source/js/Traits/Animable.js"></script>
-
-
-
+    <script src="..//source/js/State.js"></script>
     <script src="..//source/js/Viewport.js"></script>
     <script src="..//source/js/ViewportInteraction.js"></script>
-
-
     <script src="..//source/js/Item.js"></script>
-
     <script src="..//source/js/Scene.js"></script>
     <script src="..//source/js/Board/Free.js"></script>
-
-
-
-
-
     <script src="..//source/js/Line.js"></script>
     <script src="..//source/js/Surface.js"></script>
     <script src="..//source/js/Cuboid.js"></script>
     <script src="..//source/js/Cube.js"></script>
-
-
     <script src="..//source/js/Board/Square.js"></script>
-
-
-
     <script>
        function testLines(viewport) {
-
             let line;
-
-
-
             line = new Line(10, '#f0f');
             line.setStart(00, 0, 0);
             line.setEnd(550, 0, 0);
             viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#f0f');
-            line.setStart(00, 0, 0);
             line.setEnd(00, 550, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#f0f');
             line.setStart(550, 550, 0);
             line.setEnd(550, 550, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#f0f');
             line.setStart(00, 550, 0);
-            line.setEnd(550, 550, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#f0f');
             line.setStart(550, 0, 0);
-            line.setEnd(550, 550, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#f0f');
-            line.setStart(00, 0, 0);
             line.setEnd(550, 550, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-
-
             line = new Line(10, '#0ff');
             line.setStart(550, 550, 550);
             line.setEnd(0, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#0ff');
             line.setStart(550, 0, 550);
-            line.setEnd(0, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#0ff');
-            line.setStart(550, 0, 550);
-            line.setEnd(550, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#0ff');
             line.setStart(550, 550, 225);
             line.setEnd(275, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#0ff');
             line.setStart(0, 550, 0);
             line.setEnd(550, 0, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#0ff');
-            line.setStart(550, 550, 550);
-            line.setEnd(550, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#0ff');
-            line.setStart(550, 550, 550);
             line.setEnd(0, 550, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#0ff');
             line.setStart(0, 550, 550);
-            line.setEnd(550, 550, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#0ff');
-            line.setStart(550, 550, 0);
-            line.setEnd(550, 0, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#0ff');
-            line.setStart(550, 0, 550);
-            line.setEnd(0, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-
-            line = new Line(10, '#0ff');
-            line.setStart(0, 550, 550);
-            line.setEnd(0, 0, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
             line = new Line(10, '#50f');
-            line.setStart(550, 550, 0);
             line.setEnd(0, 550, 0);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
-
-            line = new Line(10, '#50f');
-            line.setStart(0, 550, 550);
             line.setEnd(0, 0, 550);
-            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
             }
-
         const container = document.getElementById('main');
         let viewport = new Viewport(container);
         viewport.addAxes();
         viewport.draw();
-
         testLines(viewport);
-
-
     </script>
-
-
-
 </body>
 <html>

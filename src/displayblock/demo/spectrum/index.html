@@ -2,115 +2,67 @@
 <html>
 <head>
 
-
     
 <link rel="stylesheet" href="../../source/css/style.css" />
 <link rel="stylesheet" href="../../source/css/Board.css" />
-
-
 <link rel="stylesheet" href="../../source/css/Item.css" />
 <link rel="stylesheet" href="../../source/css/Cuboid.css" />
 <link rel="stylesheet" href="../../source/css/Cube.css" />
-
-
-
 <link rel="stylesheet" href="asset/style.css" />
-
 <title>Spectrum</title>
-
 </head>
-
 <body>
-
 <h1>Spectrum</h1>
-
-
-
-
-
 <div id ="player" style="position: fixed; z-index:1000; display: none">
     <button id="play">play</button>
     <button id="pause">pause</button>
 </div>
-
-
-
-
-
 <script src="../../source/js/Util/Transformation.js"></script>
 <script src="../../source/js/Util/PositionManager.js"></script>
 <script src="../../source/js/Util/Animation.js"></script>
-
-
 <script src="../../source/js/Traits/Renderable.js"></script>
 <script src="../../source/js/Traits/Animable.js"></script>
-
-
-
+<script src="../../source/js/State.js"></script>
 <script src="../../source/js/Viewport.js"></script>
 <script src="../../source/js/ViewportInteraction.js"></script>
-
-
 <script src="../../source/js/Item.js"></script>
-
 <script src="../../source/js/Scene.js"></script>
 <script src="../../source/js/Board/Free.js"></script>
-
 <script src="../../source/js/Line.js"></script>
 <script src="../../source/js/Surface.js"></script>
 <script src="../../source/js/Cuboid.js"></script>
 <script src="../../source/js/Cube.js"></script>
-
 <script src="../../source/js/Board/Square.js"></script>
-
-
 <script>
-
-
-
-
 class Equalizer
 {
     frequencyCount = 0;
     bars = [];
     viewport = null;
-
     barSize = 10;
-
     barHeight = 10;
     barMutltiplicator = 10;
-
     interval  = null;
     elapsed = 0;
     startTimer = null;
-
     playing = false;
-
     music = null;
-
     constructor(source, container, frequencyCount = 32, size= 20) {
         this.buffer = null;
-
         this.frequencyCount = frequencyCount
         this.viewport = new Viewport(container);
         this.viewport.setRotations(30,0,30);
         this.barSize = size;
         this.barHeight = this.barSize;
-
         this.loadMusic().then(() => {
             document.getElementById('player').style.display ='block';
-
             this.playButton = document.querySelector('#play');
             this.playButton.onclick = () => this.play();
-
             this.pauseButton = document.querySelector('#pause');
             this.pauseButton.onclick = () => this.stop();
-
             this.generateViewport();
         });
     }
-
-
     loadMusic() {
         return window.fetch('asset/Matoma-old-thing-back.mp3')
             .then(response => {
@@ -119,45 +71,28 @@ class Equalizer
                 });
             });
         ;
-    }
-
-
     initializeContext() {
         this.context = new AudioContext();
-
         this.analyser = this.context.createAnalyser();
         this.analyser.fftSize = this.frequencyCount * 2;
         let bufferLength = this.analyser.frequencyBinCount;
         this.dataArray = new Uint8Array(bufferLength);
-
         this.analyser.connect(this.context.destination);
-
         return this.context.decodeAudioData(this.music).then(audioBuffer => {
             this.buffer = audioBuffer;
             this.inializeSource();
             return this;
-        });
-    }
-
-
     inializeSource() {
         this.source = this.context.createBufferSource();
         this.source.connect(this.analyser);
         this.source.buffer = this.buffer;
-    }
-
     startMusic() {
         this.startTimer = (new Date()).getTime();
-
         if(this.source.buffer) {
-            this.inializeSource();
         };
-
         this.source.start(0, this.getElapsed()/1000);
         this.interval = setInterval(() => this.draw(), 20);
         this.playing =true;
-    }
-
     play() {
         if(!this.context) {
             this.initializeContext().then(() => this.startMusic());
@@ -168,76 +103,34 @@ class Equalizer
             }
             else {
                 this.startMusic();
-            }
-        }
-    }
-
-
     stop() {
         this.source.stop(0);
         this.elapsed += (new Date()).getTime() - this.startTimer;
         this.playing = false;
         clearInterval(this.interval);
-    }
-
     getElapsed() {
         return this.elapsed + (new Date()).getTime() - this.startTimer;
-    }
-
-
     isFininished() {
-        if(this.source.buffer) {
             if(this.getElapsed() / 1000 >= this.source.buffer.duration) {
                 this.playing = false;
                 this.elapsed = 0;
-            }
-        }
-    }
-
     generateViewport() {
         const start = Math.floor(this.frequencyCount / -2);
         const end = Math.floor(this.frequencyCount / 2);
-
         for(let i = start ; i < end ; i++) {
             var cube = new Cube(this.barSize, this.barHeight);
             this.bars.push(cube);
             this.viewport.addItem(cube, this.barSize * i + 100, 300 ,0, true);
-        }
-
         this.viewport.draw();
-    }
-
     draw() {
         this.analyser.getByteFrequencyData(this.dataArray);
-
          for(let index in this.dataArray) {
-
             let bar = this.bars[index];
             let value = this.dataArray[index];
-
             let height = Math.floor(Math.pow(value / 255 * this.barHeight, 1.2)) * this.barMutltiplicator;
-
-
             bar.setDepth(height);
-        }
-
-    }
 }
-
-
-
 let equalizer = new Equalizer(document.querySelector('audio'), document.body, 32, 30);
-
-
-
-
-
-
 </script>
-
-
-
-
-
 </body>
 </html>

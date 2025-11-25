@@ -2,119 +2,59 @@
 <html>
 <head>
 
-
-
-
-
     <link rel="stylesheet" href="../../source/css/style.css" />
     <link rel="stylesheet" href="../../source/css/Scene.css" />
-
     <link rel="stylesheet" href="../../source/css/Item.css" />
     <link rel="stylesheet" href="../../source/css/Cube.css" />
     <link rel="stylesheet" href="../../source/css/Cuboid.css" />
     <link rel="stylesheet" href="../../source/css/Line.css" />
-
     <link rel="stylesheet" href="../../source/css/Board.css" />
     <link rel="stylesheet" href="../../source/css/Matrix.css" />
-
-
 <link rel="stylesheet" href="../../source/css/theme/licornie/Cube.css" />
-
-
 <link rel="stylesheet" href="asset/style.css" />
-
 <title>Somewhere over the rainbow</title>
-
 </head>
-
 <body>
-
 <h1>Somewhere over the rainbow</h1>
-
 <div id="viewport"></div>
-
 <script src="../../source/js/Util/Transformation.js"></script>
 <script src="../../source/js/Util/PositionManager.js"></script>
 <script src="../../source/js/Util/Animation.js"></script>
-
-
 <script src="../../source/js/Traits/Renderable.js"></script>
 <script src="../../source/js/Traits/Animable.js"></script>
-
-
-
+<script src="../../source/js/State.js"></script>
 <script src="../../source/js/Viewport.js"></script>
 <script src="../../source/js/ViewportInteraction.js"></script>
-
-
 <script src="../../source/js/Item.js"></script>
-
 <script src="../../source/js/Scene.js"></script>
 <script src="../../source/js/Board/Free.js"></script>
-
 <script src="../../source/js/Line.js"></script>
 <script src="../../source/js/Surface.js"></script>
 <script src="../../source/js/Cuboid.js"></script>
 <script src="../../source/js/Cube.js"></script>
-
-
 <script>
-
-
 const container = document.querySelector('#viewport');
 let viewport = new Viewport(container);
 viewport.addAxes();
 viewport.setRotations(30, 0, 30);
-
 viewport.draw();
-
-
 const cubeSize = 50;
 const size = 15;
-
-
-
 const offsetX  = cubeSize * size / -2 + viewport.getWidth() / 2;
 const offsety  = cubeSize * size / -2 + viewport.getHeight() / 2;
-
-
 let surface = new Surface(cubeSize * size, cubeSize * (size + 1));
 viewport.addItem(surface, offsetX, offsety, 0);
-
-
-
-
 for(let i = 0 ; i < size ; i++) {
     let cube = new Cube(cubeSize, cubeSize, cubeSize);
     let x = i * cubeSize + offsetX;
     viewport.addItem(cube, x, offsety, 0);
 }
-
-for(let i = 0 ; i < size ; i++) {
-    let cube = new Cube(cubeSize, cubeSize, cubeSize);
-    let x = i * cubeSize + offsetX;
     let y = cubeSize * size + offsety;
     viewport.addItem(cube, x, y, 0);
-}
-
 for(let i = 1 ; i < size ; i++) {
-    let cube = new Cube(cubeSize, cubeSize, cubeSize);
     let y = i * cubeSize + offsety;
     viewport.addItem(cube, offsetX, y, 0);
-}
-
-for(let i = 1 ; i < size ; i++) {
-    let cube = new Cube(cubeSize, cubeSize, cubeSize);
-    let y = i * cubeSize + offsety;
     let x = cubeSize * (size - 1) + offsetX;
-    viewport.addItem(cube, x, y, 0);
-}
-
 </script>
-
-
-
-
-
 </body>
 </html>

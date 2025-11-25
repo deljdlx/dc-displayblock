@@ -5,135 +5,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Krakottes, the Krakens' Krispy musics</title>
-
-
     <link rel="stylesheet" href="..//source/css/style.css" />
     <link rel="stylesheet" href="..//source/css/Scene.css" />
-
     <link rel="stylesheet" href="..//source/css/Item.css" />
     <link rel="stylesheet" href="..//source/css/Cube.css" />
     <link rel="stylesheet" href="..//source/css/Cuboid.css" />
     <link rel="stylesheet" href="..//source/css/Line.css" />
-
     <link rel="stylesheet" href="..//source/css/Board.css" />
     <link rel="stylesheet" href="..//source/css/Matrix.css" />
-
     <style>
         body {
             background-color: #000;
             /*background-image: url(https://i.pinimg.com/originals/d3/ac/55/d3ac555effe094dd590384293267349f.png);*/
             background-size: cover;
         }
-
         .layout__perspective {
             background-color: #fff1;
             border: solid 1px #fffc;
             /*backdrop-filter: blur(5px); destroy 3d effect*/
-        }
-
         .cuboid .cuboid-side {
-            background-color: #fff1;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
             transition: all 0.5s;
             cursor: pointer;
-        }
-
         .cuboid:hover .cuboid-side {
             background-color: #fffc;
             box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
-        }
         .line .side{
             box-shadow: 0 0 5px rgba(255, 0, 255, 1);
-        }
     </style>
-
 </head>
-
 <body>
-
     <div id="main" style="width: 600px;height:400px;"></div>
-
     <div style="position: absolute; top: 0; left:0; z-index:100">
         <button id="triggerRotations">Trigger rotation loops</button>
         <button id="triggerRotate30">Rotate by 30°</button>
         <button id="flatten">Flatten</button>
-
         |
-
         <button id="triggerRotateItem">Rotate Items</button>
         <button id="triggerTranslateItem">Translate Items</button>
         <button id="triggerNormalizeItem">Normalize Items</button>
         <button id="triggerRandomizeItem">Randomize Items</button>
         <button id="triggerGridItem">Grid display</button>
-
     </div>
-
     <script src="..//source/js/Util/Transformation.js"></script>
     <script src="..//source/js/Util/PositionManager.js"></script>
     <script src="..//source/js/Util/Animation.js"></script>
-
-
     <script src="..//source/js/Traits/Renderable.js"></script>
     <script src="..//source/js/Traits/Animable.js"></script>
-
-
-
+    <script src="..//source/js/State.js"></script>
     <script src="..//source/js/Viewport.js"></script>
     <script src="..//source/js/ViewportInteraction.js"></script>
-
-
     <script src="..//source/js/Item.js"></script>
-
     <script src="..//source/js/Scene.js"></script>
     <script src="..//source/js/Board/Free.js"></script>
-
-
-
-
-
     <script src="..//source/js/Line.js"></script>
     <script src="..//source/js/Surface.js"></script>
     <script src="..//source/js/Cuboid.js"></script>
     <script src="..//source/js/Cube.js"></script>
-
-
     <script src="..//source/js/Board/Square.js"></script>
-
-
-
     <script>
-
         const container = document.getElementById('main');
         let viewport = new Viewport(container);
         viewport.addAxes();
         viewport.draw();
-
         let cubes = [];
         let x;
         let y;
         let z;
-
-
-
         let nbCubes = 20;
-
-
         for (let i = 0; i < nbCubes ; i++) {
             // break;
-
-
             let cube = new Cube(20 + Math.random() * 100, 20 + Math.random() * 100);
             cube.setFrontContent('<div style="color: #fff">' + i + '</div>');
             cubes.push(cube);
-
             x = (800 + Math.random() * 600) * (Math.random() - 0.5) + viewport.getWidth() / 2;
             y = (700 + Math.random() * 600) * (Math.random() - 0.5) + viewport.getHeight() / 2;
             z = (500 + Math.random() * 600) * (Math.random() - 0.5);
-
             cube.setPositions(x,y,z);
-
             let sceneName = 'orbit-' + i;
-
             viewport.addItem(
                 cube,
                 x,
@@ -142,150 +91,69 @@
                 false,
                 sceneName
             );
-
             viewport.getScene(sceneName).setRotationX(360 * Math.random());
-
-
             viewport.getScene(sceneName).enableRotations(0,0,360, 5000 + Math.random() * 10000);
-
-
-
             cube.addEventListener('click', (event) => {
                 cube.enableRotations(
-                    360,
-                    360,
                     360,
                     2000 + (2000 * Math.random())
                 );
             });
-        }
-
-
-
         // ===========================================================================================
         function randomTransation(cubes) {
             for (let cube of cubes) {
                 cube.translateBy(
                     (300 + Math.random() * 300) * (Math.random() - 0.5),
-                    (300 + Math.random() * 300) * (Math.random() - 0.5),
-                    (300 + Math.random() * 300) * (Math.random() - 0.5),
                     1000 + (1000 * Math.random())
-                );
             }
-        }
-
         function randomSize(cubes) {
-            for (let cube of cubes) {
                 cube.resize(
                     30 + Math.random() * 50,
-                    30 + Math.random() * 50,
                     30 + Math.random() * 50
-                );
-            }
-        }
-
         function normalize(cubes) {
-            for (let cube of cubes) {
                 cube.resize(40, 40, 40);
-            }
-        }
-
-
-
-        // ===========================================================================================
-
-
         document.getElementById('triggerGridItem').addEventListener('click', (event) => {
             // viewport.disableRotations();
             // viewport.flatten(1000);
-
             let left = 0;
             let top = 0;
-
             let maxWidth = 300;
             let itemSize = 20;
             let itemMargin = 20;
-
             let rows = Math.ceil((cubes.length * (itemSize + itemMargin)) / maxWidth);
             let maxHeight = rows * (itemSize + itemMargin);
-
-
-            for (let cube of cubes) {
-
                 cube.translateTo(
                     left + Math.ceil((viewport.getWidth() / 2) - (maxWidth / 2)),
                     top + Math.ceil((viewport.getHeight() / 2) - (maxHeight / 2)),
                     0,
                     1000,
                     () => {}
-                );
-
                 cube.resize(itemSize, itemSize, itemSize);
-
                 left += (itemSize + itemMargin);
-
                 if (left > maxWidth) {
                     left = 0;
                     top += (itemSize + itemMargin);
                 }
-            }
         });
-
         document.getElementById('triggerTranslateItem').addEventListener('click', (event) => {
             randomTransation(cubes);
-        });
-
-
         document.getElementById('triggerRandomizeItem').addEventListener('click', (event) => {
             randomSize(cubes);
-        });
-
         document.getElementById('triggerNormalizeItem').addEventListener('click', (event) => {
             normalize(cubes);
-        });
-
-
-
         document.getElementById('triggerRotateItem').addEventListener('click', (event) => {
-            for (let cube of cubes) {
-                cube.enableRotations(
-                    0,
-                    0,
-                    360,
-                    2000 + (2000 * Math.random())
-                );
-            }
-        });
-
-        // ===========================================================================================
-
         document.getElementById('triggerRotations').addEventListener('click', (event) => {
             if (viewport.rotationEnabled()) {
                 viewport.disableRotations();
             } else {
                 viewport.enableRotations(
-                    0,
-                    0,
-                    360,
                     20000
-                );
-            }
-        });
-
         document.getElementById('triggerRotate30').addEventListener('click', (event) => {
             viewport.rotateBy(0, 0, 20, 1000);
             viewport.rotateBy(30, 0, 0, 1000);
-        });
-
-
         document.getElementById('flatten').addEventListener('click', (event) => {
             viewport.flatten(1000);
-        });
-
         console.log(viewport);
     </script>
-
-
-
 </body>
 <html>

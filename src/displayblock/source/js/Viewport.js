@@ -48,6 +48,13 @@ class Viewport extends Animable {
   _items = [];
 
   /**
+   * State manager for import/export functionality.
+   * @type {State}
+   * @private
+   */
+  _state = null;
+
+  /**
    * Creates a new Viewport instance.
    * @param {HTMLElement} container - The container element to render into.
    */
@@ -70,6 +77,8 @@ class Viewport extends Animable {
 
     this._interactionManager = new ViewportInteraction(this);
     this._interactionManager.makeInteractive();
+
+    this._state = new State(this);
   }
 
   /**
@@ -187,5 +196,64 @@ class Viewport extends Animable {
       return this._scenes[name];
     }
     return false;
+  }
+
+  /**
+   * Gets the state manager instance.
+   * @returns {State} The state manager.
+   */
+  getState() {
+    return this._state;
+  }
+
+  /**
+   * Exports the current viewport state as a JSON-serializable object.
+   * @returns {Object} The complete state object.
+   */
+  exportState() {
+    return this._state.export();
+  }
+
+  /**
+   * Exports the current viewport state as a JSON string.
+   * @returns {string} The state as a JSON string.
+   */
+  toJSON() {
+    return this._state.toJSON();
+  }
+
+  /**
+   * Imports state from a JSON-serializable object.
+   * Clears the current state before importing.
+   * @param {Object} state - The state object to import.
+   * @returns {Viewport} The current instance for method chaining.
+   */
+  importState(state) {
+    this._state.clear();
+    this._state.import(state);
+    this.draw();
+    return this;
+  }
+
+  /**
+   * Imports state from a JSON string.
+   * Clears the current state before importing.
+   * @param {string} json - The JSON string to import.
+   * @returns {Viewport} The current instance for method chaining.
+   */
+  fromJSON(json) {
+    this._state.clear();
+    this._state.fromJSON(json);
+    this.draw();
+    return this;
+  }
+
+  /**
+   * Clears all scenes and items from the viewport.
+   * @returns {Viewport} The current instance for method chaining.
+   */
+  clear() {
+    this._state.clear();
+    return this;
   }
 }
