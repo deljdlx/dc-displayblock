@@ -81,20 +81,29 @@
 const world = new CANNON.World();
 world.gravity.set(0, -9.82, 0);
 
+// Map pour lier cubes et corps physiques
+const physicsMap = new Map(); // cube.getId() -> CANNON.Body
+
 // Synchronisation physique → DOM à chaque frame
 function animate() {
     world.step(1/60);
     
     // Pour chaque cube
-    cubes.forEach((cube, i) => {
-        const body = physicsBodies[i];
-        cube.setPositions(body.position.x, body.position.y, body.position.z);
-        cube.setRotations(
-            body.quaternion.toEuler().x,
-            body.quaternion.toEuler().y,
-            body.quaternion.toEuler().z
-        );
-        cube.applyTransformations();
+    cubes.forEach((cube) => {
+        const body = physicsMap.get(cube.getId());
+        if (body) {
+            cube.setPositions(body.position.x, body.position.y, body.position.z);
+            
+            // Conversion quaternion vers angles d'Euler
+            const euler = new CANNON.Vec3();
+            body.quaternion.toEuler(euler);
+            cube.setRotations(
+                euler.x * 180 / Math.PI,
+                euler.y * 180 / Math.PI,
+                euler.z * 180 / Math.PI
+            );
+            cube.applyTransformations();
+        }
     });
     
     requestAnimationFrame(animate);
@@ -311,8 +320,9 @@ import('@dimforge/rapier3d').then(RAPIER => {
 ```javascript
 // 1. Mises à jour minimales du DOM
 // Utiliser transform au lieu de left/top/width/height
-cube.style.transform = `translate3d(${x}px, ${y}px, ${z}px) 
-                        rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+const transformStr = `translate3d(${x}px, ${y}px, ${z}px) ` +
+                     `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+cube.style.transform = transformStr;
 
 // 2. Batch updates avec requestAnimationFrame
 let pendingUpdates = [];
@@ -455,13 +465,13 @@ class Viewport extends Animable {
                         body.position.z
                     );
                     
-                    // Quaternion vers Euler (simplifié)
+                    // Quaternion vers Euler
                     const euler = new CANNON.Vec3();
                     body.quaternion.toEuler(euler);
                     item.setRotations(
-                        euler.x * 180 / Math.PI,
-                        euler.y * 180 / Math.PI,
-                        euler.z * 180 / Math.PI
+                        (euler.x * 180) / Math.PI,
+                        (euler.y * 180) / Math.PI,
+                        (euler.z * 180) / Math.PI
                     );
                     
                     item.applyTransformations();
