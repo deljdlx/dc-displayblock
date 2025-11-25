@@ -200,15 +200,12 @@ class Line extends Item {
    * Sets the end point of the line and calculates the rotation angles.
    *
    * The line is rendered as a horizontal bar along the positive X-axis starting
-   * at the origin. To orient it from start to end point, we need to apply rotations.
+   * at the origin. To orient it from start to end point, we apply rotations.
    *
    * Coordinate system:
    * - X-axis: points right (positive X = right)
    * - Y-axis: points down (positive Y = down, typical for screen coordinates)
    * - Z-axis: points toward the viewer (positive Z = toward viewer)
-   *
-   * Rotation order applied by CSS: rotateX, then rotateY, then rotateZ
-   * (but we calculate angles considering the final orientation needed)
    *
    * @param {number} x - The X coordinate of the end point.
    * @param {number} y - The Y coordinate of the end point.
@@ -220,86 +217,126 @@ class Line extends Item {
     this._end.y = y;
     this._end.z = z;
 
-    // Calculate the delta (displacement vector) from start to end
+    // Save start Z position to restore later (needed for proper scene rendering)
+    const saveStart = {
+      x: this._start.x,
+      y: this._start.y,
+      z: this._start.z,
+    };
+
+    // Calculate displacement vector from start to end
     const xDelta = this._end.x - this._start.x;
     const yDelta = this._end.y - this._start.y;
     const zDelta = this._end.z - this._start.z;
 
-    // Calculate the 3D Euclidean distance (length of the line)
-    // Using Pythagorean theorem in 3D: length = sqrt(dx² + dy² + dz²)
-    const length = Math.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
+    // Normalize Z coordinates for calculation (translate to origin on Z axis)
+    if (this._start.z !== 0) {
+      this._end.z -= this._start.z;
+      this._start.z = 0;
+    }
 
-    // Initialize rotation angles (in radians)
+    let length;
     let angleX = 0;
     let angleY = 0;
     let angleZ = 0;
 
-    // Handle edge case where start and end points are the same
-    if (length === 0) {
-      this._length = 0;
-      this.setRotations(0, 0, 0);
-      this.draw();
-      return this;
-    }
-
-    // Calculate the projection of the line onto the XY plane
-    // This is the horizontal distance ignoring the Z component
-    // projectionXY = sqrt(dx² + dy²)
-    const projectionXY = Math.sqrt(xDelta * xDelta + yDelta * yDelta);
-
     /*
-     * ROTATION CALCULATIONS:
-     *
-     * We need to orient a line that starts along the positive X-axis to point
-     * from start to end. We do this using two rotations:
-     *
-     * 1. rotateZ (rotation around Z-axis, in the XY plane):
-     *    This angles the line in the horizontal plane (screen plane).
-     *    angleZ = atan2(yDelta, xDelta)
-     *    - atan2 handles all four quadrants correctly
-     *    - When xDelta > 0, yDelta = 0: angleZ = 0 (pointing right)
-     *    - When xDelta = 0, yDelta > 0: angleZ = 90° (pointing down)
-     *    - When xDelta < 0, yDelta = 0: angleZ = ±180° (pointing left)
-     *    - When xDelta = 0, yDelta < 0: angleZ = -90° (pointing up)
-     *
-     * 2. rotateY (rotation around Y-axis, tilting the line into/out of screen):
-     *    After rotating in XY plane, we need to tilt the line to account for Z.
-     *    The tilt angle is calculated using the projection onto XY plane and zDelta.
-     *    angleY = -atan2(zDelta, projectionXY)
-     *    - Negative because rotateY with positive angle tilts the positive X-axis
-     *      toward negative Z (away from viewer), but we want positive zDelta
-     *      to tilt toward the viewer
-     *    - When zDelta = 0: angleY = 0 (no tilt, line stays in XY plane)
-     *    - When zDelta > 0 and projectionXY = 0: line points directly at viewer
-     *    - When zDelta < 0 and projectionXY = 0: line points away from viewer
+     * LENGTH CALCULATION:
+     * Calculate the 3D Euclidean distance using Pythagorean theorem.
+     * The calculation is done incrementally based on which axes have deltas.
      */
 
-    // Calculate Z-axis rotation (rotation in the XY plane)
-    // atan2(y, x) returns angle in radians from -π to π
-    angleZ = Math.atan2(yDelta, xDelta);
-
-    // Calculate Y-axis rotation (tilt into/out of screen)
-    // Only needed if there's horizontal distance or Z distance
-    if (projectionXY > 0 || zDelta !== 0) {
-      // Use atan2 for correct quadrant handling
-      // Negative sign because positive Y rotation tilts toward -Z
-      angleY = -Math.atan2(zDelta, projectionXY);
+    // Case: only X delta - length is simply |xDelta|
+    if (xDelta) {
+      length = Math.abs(xDelta);
     }
 
-    // Note: angleX remains 0 because after rotateZ and rotateY,
-    // the line is correctly oriented. rotateX would only be needed
-    // for additional twisting around the line's own axis.
+    // Case: Y delta present - calculate XY plane distance: sqrt(dx² + dy²)
+    if (yDelta) {
+      length = Math.sqrt(Math.pow(xDelta, 2) + Math.pow(yDelta, 2));
+    }
+
+    // Case: Z delta present - extend calculation to 3D
+    if (zDelta) {
+      if (xDelta) {
+        // First get XZ distance: sqrt(dx² + dz²)
+        length = Math.sqrt(Math.pow(xDelta, 2) + Math.pow(zDelta, 2));
+        if (yDelta) {
+          // Then extend to full 3D: sqrt(xz_length² + dy²)
+          length = Math.sqrt(Math.pow(length, 2) + Math.pow(yDelta, 2));
+        }
+      } else if (yDelta) {
+        // No X delta: YZ distance = sqrt(dy² + dz²)
+        length = Math.sqrt(Math.pow(yDelta, 2) + Math.pow(zDelta, 2));
+      }
+      // Only Z delta: length is simply |zDelta|
+      if (!length) {
+        length = Math.abs(zDelta);
+      }
+    }
+
+    /*
+     * ROTATION ANGLE CALCULATIONS:
+     *
+     * The line starts along the positive X-axis. We need to rotate it to point
+     * toward the end point. CSS applies rotations in order: rotateX, rotateY, rotateZ.
+     *
+     * - angleZ: Rotation in the XY plane (around Z-axis) - angles the line horizontally
+     * - angleY: Rotation in the XZ plane (around Y-axis) - tilts line into/out of screen
+     * - angleX: Rotation in the YZ plane (around X-axis) - additional tilt adjustment
+     *
+     * Using atan2(y, x) instead of atan(y/x) for correct quadrant handling.
+     */
+
+    // Case: Only Z delta (line goes straight into/out of screen)
+    // Rotate 90° around Y-axis to point along Z-axis
+    if (zDelta && !yDelta && !xDelta) {
+      angleY = (90 * Math.PI) / 180;
+    }
+
+    // Case: Only Y delta (line goes straight up/down)
+    // Rotate 90° around Z-axis to point along Y-axis
+    if (!zDelta && yDelta && !xDelta) {
+      angleZ = (90 * Math.PI) / 180;
+    }
+    // Case: X and Z deltas only (line in XZ plane)
+    // Use atan to calculate Y rotation for tilt into screen
+    else if (zDelta && !yDelta && xDelta) {
+      angleY = Math.atan(zDelta / xDelta);
+    }
+    // Case: Y and Z deltas only (line in YZ plane)
+    // Rotate 90° around Z, then use atan for X tilt
+    else if (zDelta && yDelta && !xDelta) {
+      angleX = Math.atan(zDelta / yDelta);
+      angleZ = (90 * Math.PI) / 180;
+    }
+    // Case: X and Y deltas only (line in XY plane, the screen plane)
+    // Use atan2 for correct angle calculation in all quadrants
+    // atan2(y, x) returns angle from -π to π, handling negative x correctly
+    else if (!zDelta && yDelta && xDelta) {
+      angleZ = Math.atan2(yDelta, xDelta);
+    }
+    // Case: All three deltas (full 3D line)
+    // Use spherical coordinate approach:
+    // 1. angleY from acos gives polar angle from X-axis
+    // 2. angleX adjusts for the Z component
+    else if (zDelta && yDelta && xDelta) {
+      angleY = Math.acos(xDelta / length);
+      const z1 = Math.sin(angleY) * length;
+      angleX = Math.asin(this._end.z / z1) - Math.PI / 2;
+    }
 
     // Convert radians to degrees for CSS transforms
-    // Formula: degrees = radians * (180 / π)
+    // Note: angleY is negated because CSS rotateY positive direction
+    // rotates the positive X-axis toward negative Z
     angleX = (angleX / Math.PI) * 180;
-    angleY = (angleY / Math.PI) * 180;
+    angleY = (angleY / Math.PI) * -180;
     angleZ = (angleZ / Math.PI) * 180;
 
-    // Store the calculated length (rounded to avoid sub-pixel rendering issues)
+    // Restore original start Z position
+    this._start.z = saveStart.z;
     this._length = Math.round(length);
 
-    // Apply the calculated rotations and redraw the line
     this.setRotations(angleX, angleY, angleZ);
     this.draw();
 
