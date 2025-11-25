@@ -5,94 +5,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Krakottes, the Krakens' Krispy musics</title>
+
+
     <link rel="stylesheet" href="../source/css/style.css" />
     <link rel="stylesheet" href="../source/css/Scene.css" />
+
     <link rel="stylesheet" href="../source/css/Item.css" />
     <link rel="stylesheet" href="../source/css/Cube.css" />
     <link rel="stylesheet" href="../source/css/Cuboid.css" />
     <link rel="stylesheet" href="../source/css/Line.css" />
+
     <link rel="stylesheet" href="../source/css/Board.css" />
     <link rel="stylesheet" href="../source/css/Matrix.css" />
+
     <style>
         body {
             background-color: #000;
             /*background-image: url(https://i.pinimg.com/originals/d3/ac/55/d3ac555effe094dd590384293267349f.png);*/
             background-size: cover;
         }
+
         .layout__perspective {
             background-color: #fff1;
             border: solid 1px #fffc;
             /*backdrop-filter: blur(5px); destroy 3d effect*/
+        }
+
         .cuboid .cuboid-side {
+            background-color: #fff1;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
             transition: all 0.5s;
             cursor: pointer;
+        }
+
         .cuboid:hover .cuboid-side {
             background-color: #fffc;
             box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
+        }
         .line .side{
             box-shadow: 0 0 5px rgba(255, 0, 255, 1);
+        }
     </style>
+
 </head>
+
 <body>
+
     <div id="main" style="width: 600px;height:400px;"></div>
+
+
     <script src="../source/js/Util/Transformation.js"></script>
     <script src="../source/js/Util/PositionManager.js"></script>
     <script src="../source/js/Util/Animation.js"></script>
+
+
     <script src="../source/js/Traits/Renderable.js"></script>
     <script src="../source/js/Traits/Animable.js"></script>
+
+
+
     <script src="../source/js/State.js"></script>
     <script src="../source/js/Viewport.js"></script>
     <script src="../source/js/ViewportInteraction.js"></script>
+
+
     <script src="../source/js/Item.js"></script>
+
     <script src="../source/js/Scene.js"></script>
     <script src="../source/js/Board/Free.js"></script>
+
+
+
+
+
     <script src="../source/js/Line.js"></script>
     <script src="../source/js/Surface.js"></script>
     <script src="../source/js/Cuboid.js"></script>
     <script src="../source/js/Cube.js"></script>
+
+
     <script src="../source/js/Board/Square.js"></script>
+
+
+
     <script>
         function testConnections(viewport) {
             let cube1 = new Cube(100, 100, 100);
             viewport.addItem(cube1, -200, -200, -200, true);
+
+
             let cube2 = new Cube(100, 100, 100);
             viewport.addItem(cube2, 100, 200, 300, true);
+
+
             let cube3 = new Cube(100, 100, 100);
             viewport.addItem(cube3, -200, 200, -200, true);
+
             let cube4 = new Cube(100, 100, 100);
             viewport.addItem(cube4, 400, 0, 50, true);
+
+
             let cube5 = new Cube(100, 100, 100);
             viewport.addItem(cube5, 400, 400, -400, true);
+
+
             let cube6 = new Cube(100, 100, 100);
             viewport.addItem(cube6, 300, 200, -300, true);
+
+
+
             line = new Line(2);
             line.connectItems(cube1, cube2);
             viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
             line = new Line(2, '#f0f');
             line.connectItems(cube1, cube3);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(2, '#f0f');
             line.connectItems(cube1, cube4);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
             line = new Line(2, '#0ff');
             line.connectItems(cube1, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(2, '#0ff');
             line.connectItems(cube6, cube4);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+            line = new Line(2, '#0ff');
             line.connectItems(cube6, cube2);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(2, '#0ff');
             line.connectItems(cube6, cube3);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
             line = new Line(10, '#0ff');
             line.connectItems(cube1, cube5);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#0ff');
             line.connectItems(cube2, cube5);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
+
+
             line = new Line(10, '#f0f');
             line.connectItems(cube2, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#f0f');
             line.connectItems(cube3, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#f0f');
             line.connectItems(cube4, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+            line = new Line(10, '#f0f');
             line.connectItems(cube5, cube6);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
+
+
             line = new Line(10, '#0f0');
             line.connectItems(cube2, cube3);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+
+
+
+            line = new Line(10, '#0f0');
             line.connectItems(cube4, cube3);
+            viewport.addItem(line, line.getStart('x'), line.getStart('y'), line.getStart('z'));
+        }
+
         const container = document.getElementById('main');
         let viewport = new Viewport(container);
         viewport.addAxes();
         viewport.draw();
+
         testConnections(viewport);
+
+
     </script>
+
+
+
 </body>
 <html>
