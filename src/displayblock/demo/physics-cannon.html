@@ -117,7 +117,7 @@
         <div><strong>📊 Statistiques</strong></div>
         <div>Cubes: <span id="cubeCount">0</span></div>
         <div>FPS: <span id="fps">60</span></div>
-        <div>Gravité: <span id="gravityValue">-9.82</span> m/s²</div>
+        <div>Gravité: <span id="gravityValue">400</span> px/s²</div>
         <div>Rebond: <span id="restitution">0.7</span></div>
     </div>
 
@@ -152,8 +152,9 @@
         viewport.draw();
 
         // Monde physique Simple Physics
+        // Note: Y positif = vers le bas dans le système de coordonnées DOM
         const world = new SimplePhysics();
-        world.gravity = { x: 0, y: -9.82, z: 0 };
+        world.gravity = { x: 0, y: 400, z: 0 }; // pixels/s² vers le bas
 
         // Map pour lier cubes DOM et corps physiques
         const physicsMap = new Map(); // cube.getId() -> {body, cube}
@@ -179,11 +180,12 @@
             
             const centerX = viewport.getWidth() / 2;
             const centerY = viewport.getHeight() / 2;
-            const groundY = centerY + 150;
+            // Sol positionné en bas de la scène
+            const groundY = centerY + 200;
             
             viewport.addItem(groundCube, centerX - groundSize/2, groundY, -groundSize/2);
 
-            // Corps physique statique
+            // Corps physique statique - position au centre du sol
             const groundBody = new PhysicsBody({
                 mass: 0,  // masse 0 = statique
                 position: { x: centerX, y: groundY + groundThickness/2, z: 0 },
@@ -196,19 +198,19 @@
         }
 
         // Créer des murs invisibles
-        function createWalls(centerX, centerY, size) {
-            const wallThickness = 10;
-            const wallHeight = 300;
+        function createWalls(centerX, groundY, size) {
+            const wallThickness = 20;
+            const wallHeight = 400;
             
             const walls = [
-                // Mur arrière
-                { pos: { x: centerX, y: centerY - wallHeight/2, z: -size/2 }, size: { x: size, y: wallHeight, z: wallThickness } },
-                // Mur avant
-                { pos: { x: centerX, y: centerY - wallHeight/2, z: size/2 }, size: { x: size, y: wallHeight, z: wallThickness } },
-                // Mur gauche
-                { pos: { x: centerX - size/2, y: centerY - wallHeight/2, z: 0 }, size: { x: wallThickness, y: wallHeight, z: size } },
-                // Mur droit
-                { pos: { x: centerX + size/2, y: centerY - wallHeight/2, z: 0 }, size: { x: wallThickness, y: wallHeight, z: size } }
+                // Mur arrière (Z négatif)
+                { pos: { x: centerX, y: groundY - wallHeight/2, z: -size/2 - wallThickness/2 }, size: { x: size, y: wallHeight, z: wallThickness } },
+                // Mur avant (Z positif)
+                { pos: { x: centerX, y: groundY - wallHeight/2, z: size/2 + wallThickness/2 }, size: { x: size, y: wallHeight, z: wallThickness } },
+                // Mur gauche (X négatif)
+                { pos: { x: centerX - size/2 - wallThickness/2, y: groundY - wallHeight/2, z: 0 }, size: { x: wallThickness, y: wallHeight, z: size } },
+                // Mur droit (X positif)
+                { pos: { x: centerX + size/2 + wallThickness/2, y: groundY - wallHeight/2, z: 0 }, size: { x: wallThickness, y: wallHeight, z: size } }
             ];
 
             walls.forEach(wall => {
@@ -223,38 +225,38 @@
 
         // Ajouter un cube avec physique
         function addPhysicsCube() {
-            const size = 20 + Math.random() * 40;
+            const size = 30 + Math.random() * 30;
             const cube = new Cube(size, size, size);
             
             const centerX = viewport.getWidth() / 2;
             const centerY = viewport.getHeight() / 2;
             
-            // Position initiale aléatoire en hauteur
-            const startX = centerX + (Math.random() - 0.5) * 200;
-            const startY = centerY - 200 - Math.random() * 100;
-            const startZ = (Math.random() - 0.5) * 200;
+            // Position initiale: au-dessus du sol (Y plus petit = plus haut dans DOM)
+            const startX = centerX + (Math.random() - 0.5) * 300;
+            const startY = centerY - 100 - Math.random() * 150; // Au-dessus du centre
+            const startZ = (Math.random() - 0.5) * 300;
 
-            viewport.addItem(cube, startX, startY, startZ);
+            viewport.addItem(cube, startX - size/2, startY - size/2, startZ - size/2);
 
-            // Corps physique dynamique
+            // Corps physique dynamique - position au centre du cube
             const body = new PhysicsBody({
                 mass: 1,
-                position: { x: startX + size/2, y: startY + size/2, z: startZ + size/2 },
+                position: { x: startX, y: startY, z: startZ },
                 size: { x: size, y: size, z: size },
                 velocity: {
-                    x: (Math.random() - 0.5) * 5,
+                    x: (Math.random() - 0.5) * 50,
                     y: 0,
-                    z: (Math.random() - 0.5) * 5
+                    z: (Math.random() - 0.5) * 50
                 },
                 rotation: {
-                    x: Math.random() * Math.PI,
-                    y: Math.random() * Math.PI,
-                    z: Math.random() * Math.PI
+                    x: 0,
+                    y: 0,
+                    z: 0
                 },
                 angularVelocity: {
-                    x: (Math.random() - 0.5) * 2,
-                    y: (Math.random() - 0.5) * 2,
-                    z: (Math.random() - 0.5) * 2
+                    x: (Math.random() - 0.5) * 3,
+                    y: (Math.random() - 0.5) * 3,
+                    z: (Math.random() - 0.5) * 3
                 }
             });
 
@@ -288,7 +290,7 @@
         // Mettre à jour les stats
         function updateStats() {
             document.getElementById('cubeCount').textContent = cubeCount;
-            document.getElementById('gravityValue').textContent = gravityEnabled ? '-9.82' : '0';
+            document.getElementById('gravityValue').textContent = gravityEnabled ? '400' : '0';
         }
 
         // Boucle de simulation physique
@@ -362,7 +364,7 @@
 
         document.getElementById('toggleGravity').addEventListener('click', (e) => {
             gravityEnabled = !gravityEnabled;
-            world.gravity = { x: 0, y: gravityEnabled ? -9.82 : 0, z: 0 };
+            world.gravity = { x: 0, y: gravityEnabled ? 400 : 0, z: 0 };
             e.target.textContent = `Gravité: ${gravityEnabled ? 'ON' : 'OFF'}`;
             updateStats();
         });
@@ -380,7 +382,7 @@
 
         console.log('🎮 Démo Physique avec Moteur Simple');
         console.log('Monde physique:', world);
-        console.log('Gravité:', world.gravity);
+        console.log('Gravité:', world.gravity, 'px/s²');
         console.log('Coefficient de rebond:', world.restitution);
     </script>
 

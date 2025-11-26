@@ -1,7 +1,9 @@
 // Simple physics engine for demonstration
+// Note: Uses DOM coordinate system where Y increases DOWNWARD
 class SimplePhysics {
     constructor() {
-        this.gravity = { x: 0, y: -9.82, z: 0 };
+        // Positive Y = downward in DOM coordinate system
+        this.gravity = { x: 0, y: 400, z: 0 }; // pixels per second squared
         this.bodies = [];
         this.staticBodies = [];
         this.restitution = 0.7; // Coefficient de rebond
