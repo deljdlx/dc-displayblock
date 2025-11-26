@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Demo - Cannon-es</title>
+
+    <link rel="stylesheet" href="..//source/css/style.css" />
+    <link rel="stylesheet" href="..//source/css/Scene.css" />
+    <link rel="stylesheet" href="..//source/css/Item.css" />
+    <link rel="stylesheet" href="..//source/css/Cube.css" />
+    <link rel="stylesheet" href="..//source/css/Cuboid.css" />
+    <link rel="stylesheet" href="..//source/css/Line.css" />
+    <link rel="stylesheet" href="..//source/css/Board.css" />
+    <link rel="stylesheet" href="..//source/css/Matrix.css" />
+
+    <style>
+        body {
+            background-color: #000;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .layout__perspective {
+            background-color: #fff1;
+            border: solid 1px #fffc;
+        }
+
+        .cuboid .cuboid-side {
+            background-color: #fff1;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+            transition: background-color 0.3s;
+        }
+
+        .cuboid.bouncing .cuboid-side {
+            background-color: #ff05;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.9);
+        }
+
+        .cuboid.ground .cuboid-side {
+            background-color: #0f05;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            color: #0ff;
+        }
+
+        .controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #0ff;
+        }
+
+        .controls button {
+            background: #000;
+            color: #0ff;
+            border: 1px solid #0ff;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .controls button:hover {
+            background: #0ff;
+            color: #000;
+        }
+
+        .stats {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            color: #0ff;
+            font-size: 12px;
+            min-width: 200px;
+        }
+
+        .stats div {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="controls">
+        <h3>🎮 Contrôles Physique</h3>
+        <button id="addCube">Ajouter Cube</button>
+        <button id="addMany">Ajouter 10 Cubes</button>
+        <button id="reset">Réinitialiser</button>
+        <button id="toggleGravity">Gravité: ON</button>
+        <div style="margin-top: 10px; font-size: 11px;">
+            <div>💡 Clic droit + déplacer = Rotation</div>
+            <div>💡 Clic gauche + déplacer = Pan</div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div><strong>📊 Statistiques</strong></div>
+        <div>Cubes: <span id="cubeCount">0</span></div>
+        <div>FPS: <span id="fps">60</span></div>
+        <div>Gravité: <span id="gravityValue">-9.82</span> m/s²</div>
+        <div>Rebond: <span id="restitution">0.7</span></div>
+    </div>
+
+    <div id="main" style="width: 800px; height: 600px; margin: 0 auto;"></div>
+
+    <!-- Simple Physics Engine -->
+    <script src="lib/simple-physics.js"></script>
+
+    <!-- DisplayBlock scripts -->
+    <script src="..//source/js/Util/Transformation.js"></script>
+    <script src="..//source/js/Util/PositionManager.js"></script>
+    <script src="..//source/js/Util/Animation.js"></script>
+    <script src="..//source/js/Traits/Renderable.js"></script>
+    <script src="..//source/js/Traits/Animable.js"></script>
+    <script src="..//source/js/State.js"></script>
+    <script src="..//source/js/Viewport.js"></script>
+    <script src="..//source/js/ViewportInteraction.js"></script>
+    <script src="..//source/js/Item.js"></script>
+    <script src="..//source/js/Scene.js"></script>
+    <script src="..//source/js/Board/Free.js"></script>
+    <script src="..//source/js/Line.js"></script>
+    <script src="..//source/js/Surface.js"></script>
+    <script src="..//source/js/Cuboid.js"></script>
+    <script src="..//source/js/Cube.js"></script>
+    <script src="..//source/js/Board/Square.js"></script>
+
+    <script>
+        // Configuration
+        const container = document.getElementById('main');
+        const viewport = new Viewport(container);
+        viewport.setRotations(20, 20, 0);
+        viewport.draw();
+
+        // Monde physique Simple Physics
+        const world = new SimplePhysics();
+        world.gravity = { x: 0, y: -9.82, z: 0 };
+
+        // Map pour lier cubes DOM et corps physiques
+        const physicsMap = new Map(); // cube.getId() -> {body, cube}
+        let cubeCount = 0;
+        let gravityEnabled = true;
+
+        // FPS counter
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+
+        // Configuration du rebond
+        world.restitution = 0.7;
+        world.friction = 0.3;
+
+        // Créer le sol (plan statique)
+        function createGround() {
+            const groundSize = 400;
+            const groundThickness = 20;
+            
+            const groundCube = new Cuboid(groundSize, groundThickness, groundSize);
+            groundCube.addClass('ground');
+            
+            const centerX = viewport.getWidth() / 2;
+            const centerY = viewport.getHeight() / 2;
+            const groundY = centerY + 150;
+            
+            viewport.addItem(groundCube, centerX - groundSize/2, groundY, -groundSize/2);
+
+            // Corps physique statique
+            const groundBody = new PhysicsBody({
+                mass: 0,  // masse 0 = statique
+                position: { x: centerX, y: groundY + groundThickness/2, z: 0 },
+                size: { x: groundSize, y: groundThickness, z: groundSize }
+            });
+            world.addBody(groundBody);
+
+            // Murs invisibles pour contenir les cubes
+            createWalls(centerX, groundY, groundSize);
+        }
+
+        // Créer des murs invisibles
+        function createWalls(centerX, centerY, size) {
+            const wallThickness = 10;
+            const wallHeight = 300;
+            
+            const walls = [
+                // Mur arrière
+                { pos: { x: centerX, y: centerY - wallHeight/2, z: -size/2 }, size: { x: size, y: wallHeight, z: wallThickness } },
+                // Mur avant
+                { pos: { x: centerX, y: centerY - wallHeight/2, z: size/2 }, size: { x: size, y: wallHeight, z: wallThickness } },
+                // Mur gauche
+                { pos: { x: centerX - size/2, y: centerY - wallHeight/2, z: 0 }, size: { x: wallThickness, y: wallHeight, z: size } },
+                // Mur droit
+                { pos: { x: centerX + size/2, y: centerY - wallHeight/2, z: 0 }, size: { x: wallThickness, y: wallHeight, z: size } }
+            ];
+
+            walls.forEach(wall => {
+                const wallBody = new PhysicsBody({
+                    mass: 0,
+                    position: wall.pos,
+                    size: wall.size
+                });
+                world.addBody(wallBody);
+            });
+        }
+
+        // Ajouter un cube avec physique
+        function addPhysicsCube() {
+            const size = 20 + Math.random() * 40;
+            const cube = new Cube(size, size, size);
+            
+            const centerX = viewport.getWidth() / 2;
+            const centerY = viewport.getHeight() / 2;
+            
+            // Position initiale aléatoire en hauteur
+            const startX = centerX + (Math.random() - 0.5) * 200;
+            const startY = centerY - 200 - Math.random() * 100;
+            const startZ = (Math.random() - 0.5) * 200;
+
+            viewport.addItem(cube, startX, startY, startZ);
+
+            // Corps physique dynamique
+            const body = new PhysicsBody({
+                mass: 1,
+                position: { x: startX + size/2, y: startY + size/2, z: startZ + size/2 },
+                size: { x: size, y: size, z: size },
+                velocity: {
+                    x: (Math.random() - 0.5) * 5,
+                    y: 0,
+                    z: (Math.random() - 0.5) * 5
+                },
+                rotation: {
+                    x: Math.random() * Math.PI,
+                    y: Math.random() * Math.PI,
+                    z: Math.random() * Math.PI
+                },
+                angularVelocity: {
+                    x: (Math.random() - 0.5) * 2,
+                    y: (Math.random() - 0.5) * 2,
+                    z: (Math.random() - 0.5) * 2
+                }
+            });
+
+            world.addBody(body);
+            physicsMap.set(cube.getId(), { body, cube, size });
+            cubeCount++;
+            updateStats();
+        }
+
+        // Réinitialiser la scène
+        function reset() {
+            // Supprimer tous les cubes
+            physicsMap.forEach(({body, cube}) => {
+                world.removeBody(body);
+                // Retirer du DOM
+                const wrapper = cube.getWrapper();
+                if (wrapper && wrapper.parentNode) {
+                    wrapper.parentNode.removeChild(wrapper);
+                }
+            });
+            physicsMap.clear();
+            cubeCount = 0;
+
+            // Recréer la scène
+            viewport.clear();
+            viewport.draw();
+            createGround();
+            updateStats();
+        }
+
+        // Mettre à jour les stats
+        function updateStats() {
+            document.getElementById('cubeCount').textContent = cubeCount;
+            document.getElementById('gravityValue').textContent = gravityEnabled ? '-9.82' : '0';
+        }
+
+        // Boucle de simulation physique
+        const timeStep = 1 / 60;
+        let lastCallTime = performance.now();
+
+        function animate() {
+            const currentTime = performance.now();
+            const deltaTime = (currentTime - lastCallTime) / 1000;
+            lastCallTime = currentTime;
+
+            // Mise à jour physique
+            world.step(Math.min(deltaTime, 0.1)); // Cap deltaTime pour stabilité
+
+            // Synchronisation physique → DOM
+            physicsMap.forEach(({body, cube, size}) => {
+                const pos = body.position;
+                const rot = body.rotation;
+
+                // Mise à jour position (soustraire la moitié de la taille car position DOM est coin)
+                cube.setPositions(
+                    pos.x - size/2,
+                    pos.y - size/2,
+                    pos.z - size/2
+                );
+
+                // Mise à jour rotation
+                cube.setRotations(
+                    (rot.x * 180) / Math.PI,
+                    (rot.y * 180) / Math.PI,
+                    (rot.z * 180) / Math.PI
+                );
+
+                cube.applyTransformations();
+
+                // Effet visuel de rebond
+                if (body.isColliding || Math.abs(body.velocity.y) > 2) {
+                    cube.addClass('bouncing');
+                    body.isColliding = false; // Reset
+                } else {
+                    cube.removeClass('bouncing');
+                }
+            });
+
+            // Calcul FPS
+            frameCount++;
+            if (currentTime - lastTime >= 1000) {
+                fps = Math.round(frameCount * 1000 / (currentTime - lastTime));
+                document.getElementById('fps').textContent = fps;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Contrôles
+        document.getElementById('addCube').addEventListener('click', () => {
+            addPhysicsCube();
+        });
+
+        document.getElementById('addMany').addEventListener('click', () => {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => addPhysicsCube(), i * 100);
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            reset();
+        });
+
+        document.getElementById('toggleGravity').addEventListener('click', (e) => {
+            gravityEnabled = !gravityEnabled;
+            world.gravity = { x: 0, y: gravityEnabled ? -9.82 : 0, z: 0 };
+            e.target.textContent = `Gravité: ${gravityEnabled ? 'ON' : 'OFF'}`;
+            updateStats();
+        });
+
+        // Initialisation
+        createGround();
+        
+        // Ajouter quelques cubes au démarrage
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => addPhysicsCube(), i * 200);
+        }
+
+        // Démarrer l'animation
+        animate();
+
+        console.log('🎮 Démo Physique avec Moteur Simple');
+        console.log('Monde physique:', world);
+        console.log('Gravité:', world.gravity);
+        console.log('Coefficient de rebond:', world.restitution);
+    </script>
+
+</body>
+</html>
